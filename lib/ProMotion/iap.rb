@@ -3,39 +3,38 @@ module ProMotion
     attr_accessor :completion_handlers
 
     def purchase_iaps(*product_ids, &callback)
-      iap_setup
-      retrieve_iaps product_ids do |products|
-        products.each do |product|
-          self.completion_handlers["purchase-#{product[:product_id]}"] = callback
-          payment = SKPayment.paymentWithProduct(product[:product])
-          SKPaymentQueue.defaultQueue.addPayment(payment)
-        end
-      end
+#      iap_setup
+#      retrieve_iaps product_ids do |products|
+#        products.each do |product|
+#          self.completion_handlers["purchase-#{product[:product_id]}"] = callback
+#          payment = SKPayment.paymentWithProduct(product[:product])
+#          SKPaymentQueue.defaultQueue.addPayment(payment)
+#        end
+#      end
     end
     alias purchase_iap purchase_iaps
 
     def restore_iaps(*product_ids, &callback)
-      iap_setup
-      retrieve_iaps product_ids do |products|
-        products.each do |product|
-          self.completion_handlers["restore-#{product[:product_id]}"] = callback
-          SKPaymentQueue.defaultQueue.restoreCompletedTransactions
-        end
-      end
+#      retrieve_iaps product_ids do |products|
+#        products.each do |product|
+    #      self.completion_handlers["restore-#{product[:product_id]}"] = callback
+          #SKPaymentQueue.defaultQueue.restoreCompletedTransactions
+#        end
+#      end
     end
     alias restore_iap restore_iaps
 
     def retrieve_iaps(*product_ids, &callback)
-      iap_setup
-      self.completion_handlers["retrieve_iaps"] = callback
-      @products_request = SKProductsRequest.alloc.initWithProductIdentifiers(NSSet.setWithArray(product_ids.flatten))
-      @products_request.delegate = self
-      @products_request.start
+#      iap_setup
+#      self.completion_handlers["retrieve_iaps"] = callback
+#      @products_request = SKProductsRequest.alloc.initWithProductIdentifiers(NSSet.setWithArray(product_ids.flatten))
+#      @products_request.delegate = self
+#      @products_request.start
     end
     alias retrieve_iap retrieve_iaps
 
     def completion_handlers
-      @completion_handlers ||= {}
+#      @completion_handlers ||= {}
     end
 
     # private methods
@@ -43,11 +42,11 @@ module ProMotion
     private
 
     def iap_setup
-      SKPaymentQueue.defaultQueue.addTransactionObserver(self)
+#      SKPaymentQueue.defaultQueue.addTransactionObserver(self)
     end
 
     def iap_shutdown
-      SKPaymentQueue.defaultQueue.removeTransactionObserver(self)
+#      SKPaymentQueue.defaultQueue.removeTransactionObserver(self)
     end
 
     def retrieved_iaps_handler(products, &callback)
@@ -88,7 +87,7 @@ module ProMotion
         self.completion_handlers["restore-#{product_id}"].call status, transaction
         self.completion_handlers["restore-#{product_id}"] = nil if finish
       end
-      SKPaymentQueue.defaultQueue.finishTransaction(transaction) if finish
+      #SKPaymentQueue.defaultQueue.finishTransaction(transaction) if finish
     end
 
     public
@@ -97,20 +96,20 @@ module ProMotion
 
     def productsRequest(_, didReceiveResponse:response)
       unless response.invalidProductIdentifiers.empty?
-        red = "\e[0;31m"
-        color_off = "\e[0m"
-        puts "#{red}PM::IAP Error - invalid product identifier(s) '#{response.invalidProductIdentifiers.join("', '")}' for application identifier #{NSBundle.mainBundle.infoDictionary['CFBundleIdentifier'].inspect}#{color_off}"
+#        red = "\e[0;31m"
+#        color_off = "\e[0m"
+#        puts "#{red}PM::IAP Error - invalid product identifier(s) '#{response.invalidProductIdentifiers.join("', '")}' for application identifier #{NSBundle.mainBundle.infoDictionary['CFBundleIdentifier'].inspect}#{color_off}"
       end
       retrieved_iaps_handler(response.products, &self.completion_handlers["retrieve_iaps"]) if self.completion_handlers["retrieve_iaps"]
-      @products_request = nil
-      self.completion_handlers["retrieve_iaps"] = nil
+#      @products_request = nil
+#      self.completion_handlers["retrieve_iaps"] = nil
     end
 
     def request(_, didFailWithError:error)
       self.completion_handlers["retrieve_iaps"].call([], error) if self.completion_handlers["retrieve_iaps"].arity == 2
       self.completion_handlers["retrieve_iaps"].call([]) if self.completion_handlers["retrieve_iaps"].arity < 2
-      @products_request = nil
-      self.completion_handlers["retrieve_iaps"] = nil
+#      @products_request = nil
+#      self.completion_handlers["retrieve_iaps"] = nil
     end
 
     # SKPaymentTransactionObserver methods
